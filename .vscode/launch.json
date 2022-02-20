@@ -1,31 +1,20 @@
 {
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "(lldb) 启动",
             "type": "cppdbg",
             "request": "launch",
+            "program": "${workspaceFolder}/output/main",
             "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/",
             "environment": [],
             "externalConsole": false,
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "gdb",
-                "program": "${workspaceFolder}/output/main"
-            },
-            "osx": {
-                "MIMode": "lldb",
-                "miDebuggerPath": "lldb-mi",
-                "program": "${workspaceFolder}/output/main"
-            },
-            "windows": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/output/main.exe"
-            },
-            "preLaunchTask": "build"
+            "MIMode": "lldb"
         }
     ]
 }
