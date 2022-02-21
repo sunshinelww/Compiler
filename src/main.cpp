@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <any>
+#include <boost/any.hpp>
 
 enum SyntaxKind {
 	Number,
@@ -20,9 +21,9 @@ private:
 	SyntaxKind kind;
 	int position;
 	std::string text;
-	std::any value;
+	boost::any value;
 public:
-	SyntaxToken(SyntaxKind kind, int position, std::string text, std::any value){
+	SyntaxToken(SyntaxKind kind, int position, std::string text, boost::any value){
 		this->kind = kind;
 		this->position = position;
 		this->text = text;
