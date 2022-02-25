@@ -1,2 +1,4 @@
 output/
 src/main.o
+rocksdb.yaml
+tmp.sh

@@ -2,6 +2,7 @@
 #include <string>
 #include <any>
 #include <boost/any.hpp>
+#include <vector>
 
 enum SyntaxKind {
 	Number,
@@ -14,6 +15,8 @@ enum SyntaxKind {
 	CloseParenthesis,
 	Bad,
 	End,
+	NumberExpression,
+	BinaryExpression,
 };
 
 class SyntaxToken {
@@ -29,13 +32,14 @@ public:
 		this->text = text;
 		this->value = value;
 	}
+    SyntaxToken(): kind(Bad), position(0), text(""), value(nullptr){}
+	// SyntaxToken(const SyntaxToken &rhs) : kind(rhs.kind), position(rhs.position), text(rhs.text), value(rhs.value) { }
 
 	std::string getText() const { return text; }
 	int getPosition() const { return position; }
 	SyntaxKind getKind() const { return kind; }
 
 };
-
 
 class Lexer {
 private:
@@ -59,7 +63,7 @@ public:
 		this->position = 0;
 	}
 
-	SyntaxToken NextToken() {
+	SyntaxToken nextToken() {
 		if (this->position >= this->text.length()) {
 			return SyntaxToken(End,this->position,"\0", nullptr);
 		}
@@ -94,6 +98,64 @@ public:
 	}
 };
 
+struct SyntaxNode {
+	virtual SyntaxKind getKind() = 0;
+};
+
+struct ExpressionSyntax: SyntaxNode {
+	virtual SyntaxKind getKind() = 0;
+};
+
+struct NumberExpressionSyntax final: ExpressionSyntax {
+public:
+	NumberExpressionSyntax(SyntaxToken numberToken) { this->numberToken = numberToken; }
+	SyntaxKind getKind() override { return NumberExpression;}
+private:
+	SyntaxToken numberToken;
+};
+
+struct BinaryExpressionSyntax final: ExpressionSyntax {
+	BinaryExpressionSyntax(ExpressionSyntax *left,SyntaxNode *operatorToken, ExpressionSyntax *right): left(left),operatorToken(operatorToken),right(right) {};
+	ExpressionSyntax *getLeft() const {return this->left;}
+	SyntaxNode *getOperatorToken() const { return this->operatorToken;}
+	ExpressionSyntax *getRight() const {return this->right;}
+	SyntaxKind getKind() override { return BinaryExpression;}
+
+private:
+	ExpressionSyntax *left;
+	SyntaxNode *operatorToken;
+	ExpressionSyntax *right;
+};
+
+class Parser {
+private:
+	std::vector<SyntaxToken> tokens;
+	unsigned int position;
+
+	SyntaxToken peek(int offset) {
+		int index = offset + this->position;
+		if (index >= tokens.size()) return tokens[tokens.size()-1];
+		return tokens[index];
+	}
+
+	SyntaxToken current() { return peek(0);}
+
+public:
+	Parser(const std::string text) {
+		Lexer *lexer = new Lexer(text);
+		SyntaxToken token = lexer->nextToken();
+		while (token.getKind() != End)
+		{
+			if (token.getKind() != Bad && token.getKind() != Whitespace)
+			{
+				this->tokens.push_back(token);
+			}
+			token = lexer->nextToken();
+		}
+		delete lexer;
+	}
+	
+};
 
 
 int main(int argc, char *argv[])
@@ -107,7 +169,7 @@ int main(int argc, char *argv[])
 
 		Lexer *lexer = new Lexer(input);
 		while(true) {
-			SyntaxToken token = lexer->NextToken();
+			SyntaxToken token = lexer->nextToken();
 			if (token.getKind() == End) 
 				break;
 			std::cout << "token kind : " << token.getKind() << "  token text : " << token.getText() << "  token position : " << token.getPosition() <<std::endl; 
